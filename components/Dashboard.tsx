@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
-import { Sparkles, Search, Car, Heart, Briefcase, Plane, ChevronRight, Shield, Zap, Info, X, MessageCircle, ImageOff } from 'lucide-react';
+import React, { useState, useContext } from 'react';
+import { Sparkles, Search, Car, Heart, Briefcase, Plane, ChevronRight, Shield, Info, X, MessageCircle } from 'lucide-react';
 import { User } from '../types';
+import { ThemeContext } from '../App';
 
 interface DashboardProps {
   onAsk: (question: string) => void;
@@ -173,23 +174,41 @@ const PARTNERS = [
   }
 ];
 
+// UPDATED: More conversational and dynamic prompts
 const CATEGORIES = [
-  { label: 'Vehicle', icon: <Car size={24} />, prompt: 'I need insurance for my car/motorcycle.' },
-  { label: 'Health', icon: <Heart size={24} />, prompt: 'What are the best health insurance options?' },
-  { label: 'SME Business', icon: <Briefcase size={24} />, prompt: 'I want to insure my small business against flood.' },
-  { label: 'Travel', icon: <Plane size={24} />, prompt: 'Travel insurance for a trip to Thailand.' },
+  { 
+    label: 'Vehicle', 
+    icon: <Car size={24} />, 
+    prompt: 'I am buying a used car. What is the difference between Third-party and Comprehensive insurance, and which one is better value?' 
+  },
+  { 
+    label: 'Health', 
+    icon: <Heart size={24} />, 
+    prompt: 'I want a health plan that covers critical illnesses like cancer or heart attack. Can you list the top 3 affordable options in Cambodia?' 
+  },
+  { 
+    label: 'SME Business', 
+    icon: <Briefcase size={24} />, 
+    prompt: 'I own a small coffee shop. What specific insurance do I need to protect against fire, flood, and employee accidents?' 
+  },
+  { 
+    label: 'Travel', 
+    icon: <Plane size={24} />, 
+    prompt: 'If my flight is delayed by 6 hours or my luggage is lost, does standard travel insurance actually pay me? How does the claim work?' 
+  },
 ];
 
 const TRENDING_QUESTIONS = [
-  "How does auto-claim work?",
+  "How to file a claim instantly?",
   "Compare AIA vs Prudential",
   "Explain Smart Contracts",
-  "Is my shop covered for flood?"
+  "How to lower my premium?"
 ];
 
 export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
   const [searchInput, setSearchInput] = useState('');
   const [selectedPartner, setSelectedPartner] = useState<typeof PARTNERS[0] | null>(null);
+  const { theme } = useContext(ThemeContext);
 
   const handleSearch = () => {
     if (searchInput.trim()) {
@@ -199,7 +218,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 md:space-y-8 pb-24 md:pb-6">
+    <div className={`p-4 md:p-6 max-w-5xl mx-auto space-y-6 md:space-y-8 pb-24 md:pb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
       
       {/* Hero / Greeting Section */}
       <div className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-2xl">
@@ -233,7 +252,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Ask ELIXIR-AI..." 
+                placeholder="Ask ELIXIR-AI (e.g., 'Best family plan?')" 
                 className="w-full pl-10 md:pl-12 pr-16 md:pr-20 py-3 md:py-4 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-lg text-sm md:text-base"
               />
               <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
@@ -249,18 +268,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
 
       {/* Quick Categories */}
       <div>
-         <h2 className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-3 md:mb-4 px-2">Quick Protection</h2>
+         <h2 className={`text-xs md:text-sm font-bold uppercase tracking-wider mb-3 md:mb-4 px-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Quick Protection</h2>
          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {CATEGORIES.map((cat, idx) => (
               <button
                 key={idx}
                 onClick={() => onAsk(cat.prompt)}
-                className="flex flex-col items-center justify-center p-4 md:p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-200 hover:-translate-y-1 transition-all duration-300 group active:scale-95"
+                className={`flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl border shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group active:scale-95 ${
+                  theme === 'dark' 
+                    ? 'bg-slate-800 border-slate-700 hover:border-indigo-500/50' 
+                    : 'bg-white border-slate-100 hover:border-indigo-200'
+                }`}
               >
-                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-50 text-slate-600 flex items-center justify-center mb-3 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
+                  theme === 'dark' 
+                    ? 'bg-slate-700 text-slate-300 group-hover:bg-indigo-900 group-hover:text-indigo-400' 
+                    : 'bg-slate-50 text-slate-600 group-hover:bg-indigo-50 group-hover:text-indigo-600'
+                }`}>
                    {cat.icon}
                 </div>
-                <span className="font-bold text-slate-700 group-hover:text-indigo-700 text-sm md:text-base">{cat.label}</span>
+                <span className={`font-bold text-sm md:text-base text-center group-hover:text-indigo-600 ${theme === 'dark' ? 'text-slate-200' : 'text-slate-700'}`}>{cat.label}</span>
               </button>
             ))}
          </div>
@@ -268,13 +295,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
 
       {/* Trending */}
       <div>
-         <h2 className="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider mb-3 md:mb-4 px-2">Trending Questions</h2>
+         <h2 className={`text-xs md:text-sm font-bold uppercase tracking-wider mb-3 md:mb-4 px-2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Trending Questions</h2>
          <div className="flex flex-wrap gap-2 md:gap-3">
            {TRENDING_QUESTIONS.map((q, idx) => (
              <button
                key={idx}
                onClick={() => onAsk(q)}
-               className="px-3 py-2 rounded-full bg-white border border-slate-200 text-slate-600 text-xs md:text-sm font-medium hover:border-indigo-400 hover:text-indigo-600 transition-all active:bg-slate-50"
+               className={`px-3 py-2 rounded-full border text-xs md:text-sm font-medium transition-all ${
+                 theme === 'dark'
+                  ? 'bg-slate-800 border-slate-700 text-slate-300 hover:border-indigo-500 hover:text-indigo-400'
+                  : 'bg-white border-slate-200 text-slate-600 hover:border-indigo-400 hover:text-indigo-600 active:bg-slate-50'
+               }`}
              >
                {q}
              </button>
@@ -285,14 +316,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
       {/* Partner List */}
       <div>
          <div className="flex justify-between items-end mb-3 md:mb-4 px-2">
-            <h2 className="text-lg md:text-xl font-bold text-slate-800">Verified Partners</h2>
+            <h2 className={`text-lg md:text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>Verified Partners</h2>
          </div>
          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             {PARTNERS.map((partner) => (
               <div 
                 key={partner.id}
                 onClick={() => setSelectedPartner(partner)}
-                className="group relative bg-white rounded-2xl p-4 md:p-5 border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden active:scale-[0.98]"
+                className={`group relative rounded-2xl p-4 md:p-5 border shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden active:scale-[0.98] ${
+                  theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'
+                }`}
               >
                  {/* Gradient Accent */}
                  <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${partner.gradient}`}></div>
@@ -301,12 +334,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
                     <PartnerLogo src={partner.logo} alt={partner.name} fallbackText={partner.name} />
                     <div className="flex-1 min-w-0">
                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <h3 className="font-bold text-base text-slate-800 group-hover:text-indigo-700 transition-colors truncate w-full sm:w-auto">{partner.name}</h3>
+                          <h3 className={`font-bold text-base transition-colors truncate w-full sm:w-auto ${theme === 'dark' ? 'text-slate-100 group-hover:text-indigo-400' : 'text-slate-800 group-hover:text-indigo-700'}`}>{partner.name}</h3>
                           {partner.tag && (
                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap bg-gradient-to-r ${partner.gradient} text-white opacity-90`}>{partner.tag}</span>
                           )}
                        </div>
-                       <p className="text-xs text-slate-500 truncate">{partner.description}</p>
+                       <p className={`text-xs truncate ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{partner.description}</p>
                     </div>
                     <ChevronRight className="text-slate-300 group-hover:text-indigo-500 transition-colors flex-shrink-0" />
                  </div>
@@ -316,20 +349,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
       </div>
 
       {/* Footer Info */}
-      <div className="bg-indigo-50 rounded-xl p-4 flex items-start gap-3 border border-indigo-100">
+      <div className={`rounded-xl p-4 flex items-start gap-3 border ${theme === 'dark' ? 'bg-indigo-900/30 border-indigo-800' : 'bg-indigo-50 border-indigo-100'}`}>
          <Info className="text-indigo-600 flex-shrink-0 mt-0.5" size={18} />
-         <p className="text-xs md:text-sm text-indigo-900 leading-relaxed">
+         <p className={`text-xs md:text-sm leading-relaxed ${theme === 'dark' ? 'text-indigo-200' : 'text-indigo-900'}`}>
             <span className="font-bold">Did you know?</span> By using ELIXIR's Smart Contracts, claims for flood and flight delays are processed automatically without paperwork. Ask AI to learn more.
          </p>
       </div>
 
-      {/* Partner Questions Modal (Bottom Sheet on Mobile, Center on Desktop) */}
+      {/* Partner Questions Modal */}
       {selectedPartner && (
         <div className="fixed inset-0 z-[50] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4 animate-in fade-in duration-200">
            {/* Click overlay to close */}
            <div className="absolute inset-0" onClick={() => setSelectedPartner(null)}></div>
            
-           <div className="relative bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col">
+           <div className={`relative w-full md:max-w-lg rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col ${theme === 'dark' ? 'bg-slate-900' : 'bg-white'}`}>
               {/* Modal Header */}
               <div className={`bg-gradient-to-r ${selectedPartner.gradient} p-5 md:p-6 relative flex-shrink-0`}>
                  <button 
@@ -349,7 +382,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
 
               {/* Questions List (Scrollable) */}
               <div className="p-5 md:p-6 overflow-y-auto">
-                 <p className="text-slate-500 text-sm mb-4">Select a question to ask our AI Advisor instantly:</p>
+                 <p className={`text-sm mb-4 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Select a question to ask our AI Advisor instantly:</p>
                  <div className="space-y-3">
                     {selectedPartner.questions.map((q, idx) => (
                        <button
@@ -358,9 +391,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
                            onAsk(q);
                            setSelectedPartner(null);
                          }}
-                         className="w-full text-left p-3 md:p-4 rounded-xl border border-slate-100 hover:border-indigo-300 hover:bg-indigo-50 transition-all flex items-center justify-between group active:bg-slate-50"
+                         className={`w-full text-left p-3 md:p-4 rounded-xl border transition-all flex items-center justify-between group ${
+                           theme === 'dark' 
+                             ? 'border-slate-700 hover:bg-indigo-900/30 hover:border-indigo-500/50 active:bg-slate-800' 
+                             : 'border-slate-100 hover:border-indigo-300 hover:bg-indigo-50 active:bg-slate-50'
+                         }`}
                        >
-                          <span className="text-slate-700 font-medium group-hover:text-indigo-700 text-sm leading-snug pr-2">{q}</span>
+                          <span className={`font-medium text-sm leading-snug pr-2 ${theme === 'dark' ? 'text-slate-200 group-hover:text-indigo-400' : 'text-slate-700 group-hover:text-indigo-700'}`}>{q}</span>
                           <MessageCircle size={18} className="text-slate-300 group-hover:text-indigo-500 flex-shrink-0" />
                        </button>
                     ))}
@@ -368,13 +405,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ onAsk, currentUser }) => {
               </div>
 
               {/* Manual Input Footer */}
-              <div className="p-4 border-t border-slate-100 bg-slate-50 flex-shrink-0 safe-area-bottom">
+              <div className={`p-4 border-t flex-shrink-0 safe-area-bottom ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
                  <button 
                    onClick={() => {
                       onAsk(`Tell me about ${selectedPartner.name}`);
                       setSelectedPartner(null);
                    }}
-                   className="w-full py-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-white hover:text-indigo-600 hover:border-indigo-300 transition-colors text-sm"
+                   className={`w-full py-3 border rounded-xl font-bold transition-colors text-sm ${
+                     theme === 'dark'
+                       ? 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white'
+                       : 'bg-white border-slate-200 text-slate-600 hover:bg-white hover:text-indigo-600 hover:border-indigo-300'
+                   }`}
                  >
                     Ask something else...
                  </button>

@@ -39,6 +39,7 @@ export interface Concern {
 }
 
 export enum ViewState {
+  LOGIN = 'LOGIN',
   HOME = 'HOME',
   SMART_WALLET = 'SMART_WALLET',
   SOCIALFY = 'SOCIALFY',
@@ -67,6 +68,7 @@ export interface User {
   balance?: number; // ELIXIR Tokens
   isVerified?: boolean;
   companyName?: string;
+  isLoggedIn: boolean;
 }
 
 // Socialfy Feed Types
@@ -112,4 +114,11 @@ export interface PrivacySetting {
   description: string;
   isEnabled: boolean;
   isEssential: boolean; // If true, cannot be disabled
+}
+
+export type Theme = 'light' | 'dark';
+
+export interface ThemeContextType {
+  theme: Theme;
+  toggleTheme: () => void;
 }

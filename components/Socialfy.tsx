@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
-import { Share2, Activity, Award, MessageSquare, Heart, Send, BadgeCheck, ShieldAlert, Wallet, Filter, Search } from 'lucide-react';
+import React, { useState, useContext } from 'react';
+import { Share2, Activity, Award, MessageSquare, Heart, Send, BadgeCheck, ShieldAlert, Search } from 'lucide-react';
 import { User, Post, Comment } from '../types';
+import { ThemeContext } from '../App';
 
 interface SocialfyProps {
   currentUser: User;
@@ -15,7 +16,8 @@ const INITIAL_POSTS: Post[] = [
       name: 'Visal Bong',
       role: 'USER',
       avatar: 'https://picsum.photos/seed/2/40',
-      isVerified: false
+      isVerified: false,
+      isLoggedIn: false
     },
     title: 'Does parametric insurance really payout automatically?',
     content: 'My coffee shop in Tuol Kork gets flooded every year. I am skeptical about the "auto-payout" claim. Has anyone actually received money without filing paperwork?',
@@ -30,7 +32,8 @@ const INITIAL_POSTS: Post[] = [
            name: 'Forte Insurance Support',
            role: 'AGENCY',
            avatar: 'https://picsum.photos/seed/forte/40',
-           companyName: 'Forte Insurance'
+           companyName: 'Forte Insurance',
+           isLoggedIn: false
         },
         text: 'Hello Visal. Yes, our Parametric Flood Smart Contract uses rainfall data from verified weather stations. If the threshold is met, the blockchain triggers the transaction to your Smart Wallet instantly. No manual claim form is needed.',
         timestamp: '1 hour ago',
@@ -43,6 +46,7 @@ const INITIAL_POSTS: Post[] = [
           name: 'Chan Tola',
           role: 'USER',
           avatar: 'https://picsum.photos/seed/3/40',
+          isLoggedIn: false
         },
         text: 'I can confirm this. Last October, I got the notification and the funds in my ELIXIR wallet 2 hours after the storm stopped.',
         timestamp: '45 mins ago'
@@ -56,7 +60,8 @@ const INITIAL_POSTS: Post[] = [
       name: 'Bopha Devi',
       role: 'USER',
       avatar: 'https://picsum.photos/seed/4/40',
-      isVerified: false
+      isVerified: false,
+      isLoggedIn: false
     },
     title: 'New User: Which plan for a freelancer?',
     content: 'I have no steady income but want health coverage. The options are confusing. Any recommendations?',
@@ -68,6 +73,7 @@ const INITIAL_POSTS: Post[] = [
 ];
 
 export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
+  const { theme } = useContext(ThemeContext);
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostContent, setNewPostContent] = useState('');
@@ -114,8 +120,10 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
     setCommentText({ ...commentText, [postId]: '' });
   };
 
+  const isDark = theme === 'dark';
+
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 pb-24 md:pb-8">
+    <div className={`p-4 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8 pb-24 md:pb-8 ${isDark ? 'text-white' : 'text-slate-900'}`}>
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -123,8 +131,8 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
              <Activity size={20} />
              <span className="font-bold text-sm tracking-wider uppercase">Trust Bridge</span>
            </div>
-           <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Socialfy</h1>
-           <p className="text-sm md:text-base text-slate-500">The Verified Community for Insurance Answers.</p>
+           <h1 className="text-2xl md:text-3xl font-bold">Socialfy</h1>
+           <p className={`text-sm md:text-base ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>The Verified Community for Insurance Answers.</p>
         </div>
         
         {/* Search Bar */}
@@ -133,7 +141,11 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
            <input 
              type="text" 
              placeholder="Search past concerns..." 
-             className="pl-10 pr-4 py-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-indigo-500 w-full md:w-64"
+             className={`pl-10 pr-4 py-2 rounded-xl border focus:ring-2 focus:ring-indigo-500 w-full md:w-64 outline-none transition-colors ${
+               isDark 
+                 ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500' 
+                 : 'bg-white border-slate-200 text-slate-900'
+             }`}
            />
         </div>
       </div>
@@ -144,17 +156,21 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
         <div className="lg:col-span-2 space-y-6">
           
           {/* Create Post Widget */}
-          <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200">
-             <h3 className="font-bold text-slate-700 mb-4">Post a Concern</h3>
+          <div className={`p-4 md:p-6 rounded-2xl shadow-sm border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+             <h3 className={`font-bold mb-4 ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>Post a Concern</h3>
              <input 
                 type="text" 
-                className="w-full mb-3 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                className={`w-full mb-3 px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition-colors ${
+                  isDark ? 'bg-slate-900 border-slate-700 text-white placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900'
+                }`}
                 placeholder="Topic (e.g., Claim Delay, Policy Question)"
                 value={newPostTitle}
                 onChange={(e) => setNewPostTitle(e.target.value)}
              />
              <textarea 
-                className="w-full mb-3 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none h-24 text-sm"
+                className={`w-full mb-3 px-4 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none h-24 text-sm transition-colors ${
+                  isDark ? 'bg-slate-900 border-slate-700 text-white placeholder:text-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900'
+                }`}
                 placeholder={`Describe your issue or question, ${currentUser.name.split(' ')[0]}. Verified experts will respond.`}
                 value={newPostContent}
                 onChange={(e) => setNewPostContent(e.target.value)}
@@ -177,7 +193,7 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
           {/* Posts Feed */}
           <div className="space-y-6">
             {posts.map(post => (
-              <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+              <div key={post.id} className={`rounded-2xl shadow-sm border overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                  <div className="p-4 md:p-6">
                     {/* Post Header */}
                     <div className="flex justify-between items-start mb-4">
@@ -185,22 +201,22 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
                           <img src={post.author.avatar} className="w-10 h-10 rounded-full" alt="avatar" />
                           <div>
                              <div className="flex items-center gap-1 flex-wrap">
-                                <span className="font-bold text-slate-800 text-sm md:text-base">{post.author.name}</span>
+                                <span className={`font-bold text-sm md:text-base ${isDark ? 'text-white' : 'text-slate-800'}`}>{post.author.name}</span>
                                 {post.author.isVerified && <BadgeCheck size={16} className="text-white fill-blue-500" />}
                                 {post.author.role === 'AGENCY' && <span className="text-[10px] bg-blue-100 text-blue-600 px-1 rounded font-bold">AGENCY</span>}
                              </div>
                              <p className="text-xs text-slate-400">{post.timestamp} • {post.category}</p>
                           </div>
                        </div>
-                       <button className="text-slate-300 hover:text-slate-600"><Share2 size={18} /></button>
+                       <button className={`hover:text-slate-500 ${isDark ? 'text-slate-500' : 'text-slate-300'}`}><Share2 size={18} /></button>
                     </div>
 
                     {/* Content */}
-                    <h3 className="font-bold text-base md:text-lg text-slate-800 mb-2">{post.title}</h3>
-                    <p className="text-sm md:text-base text-slate-600 leading-relaxed mb-4">{post.content}</p>
+                    <h3 className={`font-bold text-base md:text-lg mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>{post.title}</h3>
+                    <p className={`text-sm md:text-base leading-relaxed mb-4 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{post.content}</p>
                     
                     {/* Action Bar */}
-                    <div className="flex items-center gap-6 border-t border-slate-50 pt-4">
+                    <div className={`flex items-center gap-6 border-t pt-4 ${isDark ? 'border-slate-700' : 'border-slate-50'}`}>
                        <button className="flex items-center gap-2 text-slate-500 hover:text-rose-500 transition-colors text-sm font-medium">
                           <Heart size={18} /> {post.likes} Helpful
                        </button>
@@ -211,15 +227,23 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
                  </div>
 
                  {/* Comments Section */}
-                 <div className="bg-slate-50 p-4 md:p-6 border-t border-slate-100">
+                 <div className={`p-4 md:p-6 border-t ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
                     {post.comments.length > 0 && (
                       <div className="space-y-4 mb-6">
                         {post.comments.map(comment => (
-                          <div key={comment.id} className={`flex gap-3 ${comment.isOfficialResponse ? 'bg-indigo-50 p-3 md:p-4 rounded-xl border border-indigo-100 shadow-sm' : ''}`}>
+                          <div key={comment.id} className={`flex gap-3 ${
+                             comment.isOfficialResponse 
+                                ? (isDark ? 'bg-indigo-900/30 border border-indigo-500/30' : 'bg-indigo-50 border border-indigo-100 shadow-sm') 
+                                : ''
+                          } ${comment.isOfficialResponse ? 'p-3 md:p-4 rounded-xl' : ''}`}>
                              <img src={comment.author.avatar} className="w-8 h-8 rounded-full flex-shrink-0" alt="avatar" />
                              <div className="flex-1">
                                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                                   <span className={`font-bold text-sm ${comment.isOfficialResponse ? 'text-indigo-800' : 'text-slate-800'}`}>{comment.author.name}</span>
+                                   <span className={`font-bold text-sm ${
+                                      comment.isOfficialResponse 
+                                        ? (isDark ? 'text-indigo-300' : 'text-indigo-800') 
+                                        : (isDark ? 'text-white' : 'text-slate-800')
+                                   }`}>{comment.author.name}</span>
                                    {comment.isOfficialResponse && (
                                      <span className="flex items-center gap-1 text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wide">
                                        <BadgeCheck size={10} /> Verified Expert
@@ -227,7 +251,11 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
                                    )}
                                    <span className="text-xs text-slate-400">{comment.timestamp}</span>
                                 </div>
-                                <p className={`text-sm ${comment.isOfficialResponse ? 'text-indigo-900' : 'text-slate-700'}`}>{comment.text}</p>
+                                <p className={`text-sm ${
+                                   comment.isOfficialResponse 
+                                     ? (isDark ? 'text-indigo-100' : 'text-indigo-900') 
+                                     : (isDark ? 'text-slate-300' : 'text-slate-700')
+                                }`}>{comment.text}</p>
                              </div>
                           </div>
                         ))}
@@ -240,7 +268,11 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
                        <div className="flex-1 relative">
                           <input 
                             type="text" 
-                            className="w-full px-4 py-2 pr-10 rounded-full bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-400"
+                            className={`w-full px-4 py-2 pr-10 rounded-full border text-sm focus:outline-none focus:border-indigo-400 transition-colors ${
+                              isDark 
+                                ? 'bg-slate-800 border-slate-700 text-white placeholder:text-slate-500' 
+                                : 'bg-white border-slate-200 text-slate-900'
+                            }`}
                             placeholder={currentUser.role === 'AGENCY' ? "Write an official response..." : "Join the discussion..."}
                             value={commentText[post.id] || ''}
                             onChange={(e) => setCommentText({...commentText, [post.id]: e.target.value})}
@@ -248,7 +280,9 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
                           />
                           <button 
                             onClick={() => handleAddComment(post.id)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-full transition-colors"
+                            className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-colors ${
+                               isDark ? 'text-indigo-400 hover:bg-slate-700' : 'text-indigo-600 hover:bg-indigo-50'
+                            }`}
                           >
                              <Send size={14} />
                           </button>
@@ -274,24 +308,24 @@ export const Socialfy: React.FC<SocialfyProps> = ({ currentUser }) => {
               </div>
            </div>
 
-           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hidden lg:block">
-              <h3 className="font-bold text-slate-800 mb-4">Verified Agencies Online</h3>
+           <div className={`rounded-2xl border p-6 shadow-sm hidden lg:block ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+              <h3 className={`font-bold mb-4 ${isDark ? 'text-white' : 'text-slate-800'}`}>Verified Agencies Online</h3>
               <div className="space-y-3">
                  <div className="flex items-center gap-3">
                     <img src="https://picsum.photos/seed/forte/40" className="w-10 h-10 rounded-full" />
                     <div>
                        <div className="flex items-center gap-1">
-                          <p className="font-bold text-sm text-slate-800">Forte Insurance</p>
+                          <p className={`font-bold text-sm ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>Forte Insurance</p>
                           <BadgeCheck size={14} className="text-white fill-blue-500" />
                        </div>
-                       <p className="text-xs text-green-600 font-medium">Active Now</p>
+                       <p className="text-xs text-green-500 font-medium">Active Now</p>
                     </div>
                  </div>
                  <div className="flex items-center gap-3 opacity-60">
                     <img src="https://picsum.photos/seed/aia/40" className="w-10 h-10 rounded-full grayscale" />
                     <div>
                        <div className="flex items-center gap-1">
-                          <p className="font-bold text-sm text-slate-800">AIA Life</p>
+                          <p className={`font-bold text-sm ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>AIA Life</p>
                           <BadgeCheck size={14} className="text-white fill-blue-500" />
                        </div>
                        <p className="text-xs text-slate-400">Offline</p>

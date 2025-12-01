@@ -1,8 +1,9 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import { Send, Bot, User, Sparkles, AlertCircle, Clock, X, Check, Crown } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { chatWithAdvisor } from '../services/geminiService';
+import { ThemeContext } from '../App';
 
 interface AIAdvisorProps {
   initialMessage?: string;
@@ -13,6 +14,9 @@ const DAILY_LIMIT = 10;
 const COOLDOWN_SECONDS = 10;
 
 export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearInitialMessage }) => {
+  const { theme } = useContext(ThemeContext);
+  const isDark = theme === 'dark';
+  
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: '1', role: 'model', text: 'Hello! I am ELIXIR-AI, your expert Cambodian insurance consultant. I can compare plans (Forte vs AIA), explain Smart Contracts, or help with claims.\n\n**How can I protect you today?**' }
   ]);
@@ -125,7 +129,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
   const parseInline = (text: string) => {
     return text.split(/(\*\*.*?\*\*)/g).map((part, index) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={index} className="font-bold text-indigo-900">{part.slice(2, -2)}</strong>;
+        return <strong key={index} className={`font-bold ${isDark ? 'text-indigo-400' : 'text-indigo-900'}`}>{part.slice(2, -2)}</strong>;
       }
       return part;
     });
@@ -139,7 +143,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
       // 1. Headers (Standard ## Title)
       if (trimmed.startsWith('## ')) {
         return (
-          <h3 key={i} className="text-base font-bold text-indigo-900 mt-4 mb-2">
+          <h3 key={i} className={`text-base font-bold mt-4 mb-2 ${isDark ? 'text-indigo-400' : 'text-indigo-900'}`}>
             {trimmed.replace(/^##\s*/, '')}
           </h3>
         );
@@ -148,7 +152,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
       // 2. Headers (Legacy **Title** standalone)
       if (/^\*\*.+\*\*$/.test(trimmed) && trimmed.length < 60) {
          return (
-           <h3 key={i} className="text-sm font-bold text-slate-900 mt-3 mb-1">
+           <h3 key={i} className={`text-sm font-bold mt-3 mb-1 ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
              {trimmed.replace(/\*\*/g, '')}
            </h3>
          );
@@ -159,7 +163,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
         return (
           <div key={i} className="flex items-start gap-2 ml-2 mb-1">
              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 flex-shrink-0" />
-             <p className="text-sm text-slate-700 leading-relaxed">
+             <p className={`text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                {parseInline(trimmed.substring(2))}
              </p>
           </div>
@@ -171,7 +175,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
 
       // 5. Default Paragraph
       return (
-        <p key={i} className="text-sm text-slate-700 leading-relaxed mb-1">
+        <p key={i} className={`text-sm leading-relaxed mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
           {parseInline(line)}
         </p>
       );
@@ -179,20 +183,20 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
   };
 
   return (
-    <div className="flex flex-col bg-white rounded-tl-none md:rounded-tl-3xl shadow-xl overflow-hidden h-full relative">
+    <div className={`flex flex-col rounded-tl-none md:rounded-tl-3xl shadow-xl overflow-hidden h-full relative transition-colors ${isDark ? 'bg-slate-900' : 'bg-white'}`}>
       
       {/* Header */}
-      <div className="bg-white p-4 md:p-6 border-b border-slate-100 flex justify-between items-center z-10 shadow-sm flex-shrink-0">
+      <div className={`p-4 md:p-6 border-b flex justify-between items-center z-10 shadow-sm flex-shrink-0 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-100'}`}>
         <div>
-           <div className="flex items-center space-x-2 text-indigo-600 mb-1">
+           <div className={`flex items-center space-x-2 mb-1 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
             <Sparkles size={16} />
             <span className="text-xs font-bold uppercase tracking-wider">ELIXIR-AI Model 2.5</span>
            </div>
-           <h2 className="text-xl md:text-2xl font-bold text-slate-800">Expert Advisor</h2>
+           <h2 className={`text-xl md:text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Expert Advisor</h2>
         </div>
         {!isLimitReached && (
           <div className="flex flex-col items-end">
-            <span className={`text-xs font-bold px-2 py-1 rounded-full ${remaining <= 3 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+            <span className={`text-xs font-bold px-2 py-1 rounded-full ${remaining <= 3 ? 'bg-rose-900/30 text-rose-400' : (isDark ? 'bg-emerald-900/30 text-emerald-400' : 'bg-emerald-100 text-emerald-600')}`}>
               {remaining} free questions left
             </span>
           </div>
@@ -200,17 +204,17 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-slate-50">
+      <div className={`flex-1 overflow-y-auto p-4 md:p-6 space-y-6 ${isDark ? 'bg-slate-900' : 'bg-slate-50'}`}>
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`flex max-w-[85%] md:max-w-2xl ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'} items-start gap-3`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-slate-200' : 'bg-indigo-600 text-white'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? (isDark ? 'bg-slate-700 text-slate-300' : 'bg-slate-200') : 'bg-indigo-600 text-white'}`}>
                 {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
               </div>
               <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                 msg.role === 'user' 
-                  ? 'bg-white text-slate-800 rounded-tr-none border border-slate-100' 
-                  : 'bg-indigo-50 text-slate-800 rounded-tl-none border border-indigo-100'
+                  ? (isDark ? 'bg-slate-800 text-slate-100 border-slate-700' : 'bg-white text-slate-800 border-slate-100') + ' rounded-tr-none border' 
+                  : (isDark ? 'bg-indigo-900/30 text-slate-200 border-indigo-500/30' : 'bg-indigo-50 text-slate-800 border-indigo-100') + ' rounded-tl-none border'
               }`}>
                 {renderMessageContent(msg.text)}
               </div>
@@ -220,11 +224,11 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
         
         {isLoading && (
           <div className="flex justify-start">
-             <div className="flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100">
+             <div className={`flex items-center space-x-2 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-75"></div>
                 <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-150"></div>
-                <span className="text-xs text-slate-400 ml-2">Thinking...</span>
+                <span className={`text-xs ml-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Thinking...</span>
              </div>
           </div>
         )}
@@ -232,16 +236,16 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-slate-100 safe-area-bottom flex-shrink-0">
+      <div className={`p-4 border-t safe-area-bottom flex-shrink-0 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-100'}`}>
         {isLimitReached ? (
-           <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex justify-between items-center">
+           <div className={`border rounded-xl p-4 flex justify-between items-center ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
               <div className="flex items-center gap-3">
-                 <div className="bg-rose-100 p-2 rounded-full text-rose-500">
+                 <div className="bg-rose-500/20 p-2 rounded-full text-rose-500">
                     <AlertCircle size={20} />
                  </div>
                  <div>
-                    <p className="font-bold text-slate-800 text-sm">Daily Limit Reached</p>
-                    <p className="text-xs text-slate-500">Upgrade to Pro for unlimited chats.</p>
+                    <p className={`font-bold text-sm ${isDark ? 'text-white' : 'text-slate-800'}`}>Daily Limit Reached</p>
+                    <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Upgrade to Pro for unlimited chats.</p>
                  </div>
               </div>
               <button 
@@ -253,7 +257,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
            </div>
         ) : (
           <>
-            <div className="flex items-center space-x-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
+            <div className={`flex items-center space-x-2 p-2 rounded-xl border focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
               <input
                 type="text"
                 value={input}
@@ -261,7 +265,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                 placeholder={cooldown > 0 ? `Please wait ${cooldown}s...` : "Ask about insurance plans..."}
                 disabled={isLoading || cooldown > 0}
-                className="flex-1 bg-transparent px-4 py-2 outline-none text-slate-700 placeholder:text-slate-400 disabled:opacity-50"
+                className={`flex-1 bg-transparent px-4 py-2 outline-none disabled:opacity-50 ${isDark ? 'text-white placeholder:text-slate-500' : 'text-slate-700 placeholder:text-slate-400'}`}
               />
               <button 
                 onClick={() => handleSend()}
@@ -275,7 +279,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
                 )}
               </button>
             </div>
-            <p className="text-center text-[10px] text-slate-400 mt-2">
+            <p className={`text-center text-[10px] mt-2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
               ELIXIR-AI can make mistakes. Check important info.
             </p>
           </>
@@ -285,7 +289,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
       {/* Upgrade Modal */}
       {showUpgradeModal && (
         <div className="absolute inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+           <div className={`rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white text-center relative">
                  <button 
                    onClick={() => setShowUpgradeModal(false)}
@@ -301,17 +305,17 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
               </div>
               
               <div className="p-6 space-y-4">
-                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                 <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
                     <Check className="text-emerald-500" size={20} />
-                    <span className="text-sm font-medium text-slate-700">Unlimited AI Questions</span>
+                    <span className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>Unlimited AI Questions</span>
                  </div>
-                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                 <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
                     <Check className="text-emerald-500" size={20} />
-                    <span className="text-sm font-medium text-slate-700">Priority Claim Processing</span>
+                    <span className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>Priority Claim Processing</span>
                  </div>
-                 <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                 <div className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? 'bg-slate-700' : 'bg-slate-50'}`}>
                     <Check className="text-emerald-500" size={20} />
-                    <span className="text-sm font-medium text-slate-700">Exclusive Rewards Access</span>
+                    <span className={`text-sm font-medium ${isDark ? 'text-slate-200' : 'text-slate-700'}`}>Exclusive Rewards Access</span>
                  </div>
                  
                  <button 
@@ -327,7 +331,7 @@ export const AIAdvisor: React.FC<AIAdvisorProps> = ({ initialMessage, onClearIni
                  </button>
                  <button 
                     onClick={() => setShowUpgradeModal(false)}
-                    className="w-full py-2 text-slate-400 text-sm hover:text-slate-600"
+                    className={`w-full py-2 text-sm hover:text-slate-600 ${isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400'}`}
                  >
                     Maybe later
                  </button>
